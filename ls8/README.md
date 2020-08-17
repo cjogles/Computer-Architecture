@@ -60,6 +60,27 @@ but you'll have to implement those three above instructions first!
 ## Step 0: IMPORTANT: inventory what is here!
 
 * Make a list of files here.
+- ls8.py
+- I believe this file imports the cpu file from cpu.py, loads it, and runs it. Its the file that bootstraps the emulator so to speak.
+- cpu.py
+- Holds the cpu class. It is currenlty initialized with nothing, but has multiple methods. including:
+- load 
+(has an address set to 0, hardcoded a program instruction set called program as an array, and passes each of those instructions into self.ram at the address, and then increments the address. doesn't take any args)
+- alu 
+(takes op, reg_a, and reg_b as args. I'm assuming op stands for operation or perhaps operands. because the next line states if op == "ADD" then take self.reg at position reg_a and increment it by self.reg at position reg_b. I'm assuming reg_a and reg_b stand for registers a and b. else it raises an exception.)
+- trace
+(prints the cpu state by printing self.pc, and self.ram_read(self.pc) +1 and +2)
+and
+- run
+(currently has nothing in it)
+
+I have no:
+self.ram_read method
+self.pc attr
+self.reg attr
+self.ram attr
+
+
 * Write a short 3-10-word description of what each file does.
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
