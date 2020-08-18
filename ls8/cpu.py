@@ -13,6 +13,7 @@ class CPU:
         self.LDI = 0b10000010
         self.PRN = 0b01000111
         self.HLT = 0b00000001
+        self.MUL = 0b10100010
         self.op_size = 1
 
     def ram_read(self, addr_to_read): # addr_to_read is an index that points to a space in RAM
@@ -29,30 +30,32 @@ class CPU:
         """Load a program into memory."""
 
         address = 0
+        
+        if len(sys.argv) < 2:
+            print("ERROR ==> provide another argument in command line (file to parse for load method).")
 
-        # For now, we've just hardcoded a program:
+        instruction_set = open(sys.argv[1], 'r')
+        my_list = []
+        for instruction in instruction_set:
+            if (instruction[0]) == '#':
+                continue
+            if (instruction[0]) == '\n':
+                continue
+            else:
+                my_var = int("0b" + instruction.splitlines()[0].split()[0], 2)
+                my_list.append(my_var)
 
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI - Write to register command
-            0b00000000, # R0 - register 0
-            0b00001000, # 8 - value 8
-            0b01000111, # PRN - print command
-            0b00000000, # R0 - register 0
-            0b00000001, # HLT - halt command
-        ]
-
-        for instruction in program:
+        for instruction in my_list:
             self.ram[address] = instruction
             address += 1
-
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
-        # elif op == "SUB": etc
+        elif op == "MUL":
+            self.reg[reg_a] *= self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -81,18 +84,25 @@ class CPU:
         # the whole point is to run the instructions that have been loaded in RAM
         is_running = True
         while is_running:
-            cmd = self.ram_read(self.pc)
-            if cmd == self.LDI: 
+            IR = self.ram_read(self.pc)
+            if IR == self.LDI: 
                 reg_index = self.ram_read(self.pc + 1)
                 value = self.ram_read(self.pc + 2)
                 self.reg[reg_index] = value
                 self.op_size = 3
-            elif cmd == self.PRN:
+            elif IR == self.PRN:
                 reg_index = self.ram_read(self.pc + 1)
                 print(self.reg[reg_index])
                 self.op_size = 2
-            elif cmd == self.HLT:
+            elif IR == self.MUL:
+                self.alu("MUL", self.ram_read(self.pc + 1), self.ram_read(self.pc + 2))
+                self.op_size = 3
+            elif IR == self.HLT:
                 is_running = False
                 self.op_size = 1
+                
             self.pc += self.op_size
 
+
+jackson = CPU()
+jackson.load()
