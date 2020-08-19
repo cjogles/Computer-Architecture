@@ -41,7 +41,7 @@ The register is made up of 8 bits. If a particular bit is set, that flag is "tru
 
 ## Memory
 
-The LS-8 has 8-bit addressing, so can address 256 bytes of RAM total.
+The LS-8 has 8-bit addressing, so can address 256 different bytes of RAM total. 
 
 Memory map:
 
