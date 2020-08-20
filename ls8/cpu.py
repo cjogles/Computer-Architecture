@@ -1,14 +1,6 @@
 """CPU functionality."""
 
 import sys
-import os
-
-dirpath = os.path.dirname(os.path.abspath(__file__))
-
-try:
-    map_file = dirpath + sys.arg[1]
-catch:
-    print("ERROR - arg expected")
 
 class CPU:
     """Main CPU class."""
@@ -33,14 +25,14 @@ class CPU:
     def ram_write(self, MAR, MDR): #MAR is an address in RAM, whereas MDR is a value to write
         self.ram[MAR] = MDR
 
-    def load(self, map_file):
+    def load(self):
 
         address = 0
         
-        if len(map_file) < 2:
+        if len(sys.argv[1]) < 2:
             print("ERROR ==> provide file arg in CLI")
 
-        instruction_set = open(map_file, 'r')
+        instruction_set = open(sys.argv[1], 'r')
         my_list = []
         for instruction in instruction_set:
             if (instruction[0]) == '#':
@@ -89,17 +81,15 @@ class CPU:
         while is_running:
             IR = self.ram_read(self.pc)
             if IR == self.PUSH:
-                # decrement stack pointer
                 self.sp -= 1
-                # save value from register that has already been written too
-                value = self.reg[self.ram_read(self.pc + 1)] 
-                # save value to stack
+                reg_index = self.ram_read(self.pc + 1)
+                value = self.reg[reg_index] 
                 self.ram[self.sp] = value
-                # save op size
                 self.op_size = 2
             elif IR == self.POP:
-                # pop stack value and save to register
-                self.reg[self.ram(self.pc + 1)] = self.ram[self.sp]
+                value = self.ram[self.sp]
+                reg_index = self.ram_read(self.pc + 1)
+                self.reg[reg_index] = value
                 self.sp += 1
                 self.op_size = 2
             elif IR == self.LDI: 
