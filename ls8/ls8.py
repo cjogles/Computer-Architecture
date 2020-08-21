@@ -7,7 +7,7 @@ import os
 from cpu import *
 
 dirpath = os.path.dirname(os.path.abspath(__file__))
-program_file = dirpath + "/examples/stack.ls8"
+program_file = dirpath + "/examples/sctest.ls8"
 
 cpu = CPU()
 

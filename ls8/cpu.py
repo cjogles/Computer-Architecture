@@ -10,18 +10,20 @@ class CPU:
         """Construct a new CPU."""
         self.ram = [0] * 256  # 8 bit memory in ram, because I can only comprehend that much via 8 bit
         self.reg = [0] * 8  # 8 general-purpose 8-bit numeric registers R0-R7.
-        self.MAR = [0] * 1  # address in register I'm currently working with
-        self.MDR = [0] * 1  # data in register I'm currently working with
+        self.MAR = [0] * 1  # holds the memory address we're reading or writing
+        self.MDR = [0] * 1  # holds the value to write or the value just read
         self.PC = 0  # program counter keeps track of program address
         self.FL = [0] * 8 # flags I keep track of
         self.IR = [0] * 1 # instruction register I will be using in run()
-        self.SP = self.reg[7] # set aside variable for stack pointer to use it more easily
+        self.SP = self.reg[7] # * R7 is reserved as the stack pointer (SP)
+        self.IM = self.reg[5] # * R5 is reserved as the interrupt mask (IM)
+        self.IS = self.reg[6] # * R6 is reserved as the interrupt status (IS)
         self.reg[7] = 0xF4 # R7 is reserved as the stack pointer (SP), so set it here
         self.L = self.FL[5] # per spec
         self.G = self.FL[6] # per spec
         self.E = self.FL[7] # per spec
 
-        global HLT, PRN, LDI, PUSH, POP, CALL, RET, JMP, JNE, JEQ, MUL, ADD, CMP
+        global HLT, PRN, LDI, PUSH, POP, CALL, RET, JMP, JNE, JEQ, MUL, ADD, CMP, AND
 
         HLT = 0b00000001
         LDI = 0b10000010
@@ -36,6 +38,7 @@ class CPU:
         JMP = 0b01010100
         JNE = 0b01010110
         JEQ = 0b01010101
+        AND  = 0b10100000
 
     def load(self, program_filename):
         """Load a program into memory."""
@@ -67,6 +70,8 @@ class CPU:
                 self.G = 1
             else:
                 self.E = 1
+        elif op == "AND":
+            self.reg[reg_a] &= self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -90,10 +95,9 @@ class CPU:
 
         print()
 
-    def get_instruction_count(self):
-        inst_len = (self.IR >> 6) + 1 
-        return inst_len
-
+    # REMEMBER:
+    # MAR holds the memory address we are reading or writing.
+    # MDR holds the value to write or just read
     def ram_read(self):
         self.MDR = self.reg[self.MAR]
 
@@ -105,7 +109,7 @@ class CPU:
         while running:
 
             self.IR = self.ram[self.PC]
-            intruction_count = self.get_instruction_count()
+            intruction_count = (self.IR >> 6) + 1
 
             if self.IR == LDI:
                 self.MAR = self.ram[self.PC + 1]
